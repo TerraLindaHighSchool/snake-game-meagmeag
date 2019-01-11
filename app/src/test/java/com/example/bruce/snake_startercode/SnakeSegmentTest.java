@@ -18,7 +18,7 @@ public class SnakeSegmentTest {
     @Test
     public void getDegrees(){
         SnakeSegment seg2;
-        for(int i = 0; i < 270; i+= 90) {
+        for(int i = 0; i < 360; i+= 90) {
             seg2 = new SnakeSegment(SnakeSegment.BodyParts.HEAD, i, 1, 1);
             int expected = i;
             int results = seg2.getDegrees();
@@ -28,7 +28,7 @@ public class SnakeSegmentTest {
 
     @Test
     public void setDegrees(){
-        for(int i = 0; i < 270; i += 90) {
+        for(int i = 0; i < 360; i += 90) {
             seg1.setDegrees(i);
             int expected = i;
             int results = seg1.getDegrees();
