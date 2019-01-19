@@ -7,7 +7,7 @@ public class SnakeGame {
   private int mSpriteDim, mBOARD_WIDTH, mBOARD_HEIGHT, mScore,
           mLevel, mCountdown, mMillisDelay;
   int[] mAppleCoord;
-  ArrayList<SnakeSegment.BodyParts> mSnake = new ArrayList();
+  ArrayList<SnakeSegment> mSnake = new ArrayList();
   boolean mGameOver;
 
   
@@ -20,9 +20,9 @@ public class SnakeGame {
     mCountdown = 12;
     mMillisDelay = 400;
     mAppleCoord = new int[2];
-    mSnake.add(SnakeSegment.BodyParts.HEAD);
-    mSnake.add(SnakeSegment.BodyParts.BODY);
-    mSnake.add(SnakeSegment.BodyParts.TAIL);
+    mSnake.add(new SnakeSegment(SnakeSegment.BodyParts.HEAD, beginningDirection, beginningX, beginningY));
+    mSnake.add(new SnakeSegment(SnakeSegment.BodyParts.BODY, beginningDirection, beginningX - 1, beginningY));
+    mSnake.add(new SnakeSegment(SnakeSegment.BodyParts.TAIL, beginningDirection, beginningX - 2, beginningY));
     mGameOver = false;
   }
   
@@ -38,7 +38,9 @@ public class SnakeGame {
         return false;
   }
 
-  //Getters and Setters
+  /*******************************************
+   * Getters
+   ***************************************/
 
   public int getSpriteDim(){
     return mSpriteDim;

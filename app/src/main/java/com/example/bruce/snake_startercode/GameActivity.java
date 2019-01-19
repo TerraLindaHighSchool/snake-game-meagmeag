@@ -127,7 +127,9 @@ public class GameActivity extends AppCompatActivity {
         return Bitmap.createBitmap(original, 0, 0, width, height, matrix, true);
     }
 
-    //misc concrete methods
+    /*********************************
+     * misc concrete methods
+     ***********************************/
     private void showToast(String toast){
         Toast correct = Toast.makeText(this, toast, Toast.LENGTH_LONG);
         correct.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 200);
