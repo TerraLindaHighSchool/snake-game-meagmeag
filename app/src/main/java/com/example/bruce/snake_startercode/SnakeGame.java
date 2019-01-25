@@ -5,13 +5,13 @@ import java.util.ArrayList;
 
 public class SnakeGame {
   private int mSpriteDim, mBOARD_WIDTH, mBOARD_HEIGHT, mScore,
-          mLevel, mCountdown, mMillisDelay;
+          mLevel, mCountdown, mMillisDelay, mXMax, mYMax;
   int[] mAppleCoord;
   ArrayList<SnakeSegment> mSnake = new ArrayList();
-  boolean mGameOver;
-
+  boolean mGameOver = false;
   
   public SnakeGame(int beginningDirection, int beginningSpriteDim, int beginningX, int beginningY, int width, int height){
+
     mSpriteDim = beginningSpriteDim;
     mBOARD_WIDTH = width;
     mBOARD_HEIGHT = height;
@@ -23,7 +23,9 @@ public class SnakeGame {
     mSnake.add(new SnakeSegment(SnakeSegment.BodyParts.HEAD, beginningDirection, beginningX, beginningY));
     mSnake.add(new SnakeSegment(SnakeSegment.BodyParts.BODY, beginningDirection, beginningX - 1, beginningY));
     mSnake.add(new SnakeSegment(SnakeSegment.BodyParts.TAIL, beginningDirection, beginningX - 2, beginningY));
-    mGameOver = false;
+    mXMax = mBOARD_WIDTH / mSpriteDim;
+    mYMax = mBOARD_HEIGHT / mSpriteDim;
+    setAppleCoord();
   }
   
   protected void touched(float xTouched, float yTouched){
@@ -35,12 +37,45 @@ public class SnakeGame {
   }
     
   protected boolean play(){
-        return false;
+      SnakeSegment seg;
+      int xLoc, yLoc;
+      for(int i = 0; i < mSnake.size(); i++) {
+          seg = mSnake.get(i);
+          xLoc = seg.getXLoc();
+          yLoc = seg.getYLoc();
+          switch (seg.getDegrees()) {
+              case 270:
+                  seg.setYLoc(--yLoc);
+                  break;
+              case 90:
+                  seg.setYLoc(++yLoc);
+                  break;
+              case 180:
+                  seg.setXLoc(--xLoc);
+                  break;
+              case 0:
+                  seg.setXLoc(++xLoc);
+                  break;
+          }
+
+          if(mSnake.get(0).getXLoc() >= mXMax || mSnake.get(0).getYLoc() >= mYMax)
+              mGameOver = true;
+      }
+      return mGameOver;
   }
 
   /*******************************************
    * Getters
    ***************************************/
+  public int[] getAppleCoord(){
+        return mAppleCoord;
+    }
+
+  private void setAppleCoord(){
+      mAppleCoord[0] = (int) ((mXMax - 1) * Math.random() + 1) * mSpriteDim;
+      mAppleCoord[1] = (int) ((mYMax - 1) * Math.random() + 1) * mSpriteDim;
+  }
+
 
   public int getSpriteDim(){
     return mSpriteDim;
@@ -54,9 +89,6 @@ public class SnakeGame {
     return mSnake;
   }
 
-  public int[] getAppleCoord(){
-    return mAppleCoord;
-  }
 
   public int getScore(){
     return mScore;
