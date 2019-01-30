@@ -9,9 +9,9 @@ public class SnakeGame {
   int[] mAppleCoord;
   ArrayList<SnakeSegment> mSnake = new ArrayList();
   boolean mGameOver = false;
+  ArrayList<PivotPoint> mPivotPoints;
   
   public SnakeGame(int beginningDirection, int beginningSpriteDim, int beginningX, int beginningY, int width, int height){
-
     mSpriteDim = beginningSpriteDim;
     mBOARD_WIDTH = width;
     mBOARD_HEIGHT = height;
@@ -25,11 +25,28 @@ public class SnakeGame {
     mSnake.add(new SnakeSegment(SnakeSegment.BodyParts.TAIL, beginningDirection, beginningX - 2, beginningY));
     mXMax = mBOARD_WIDTH / mSpriteDim;
     mYMax = mBOARD_HEIGHT / mSpriteDim;
+    mPivotPoints = new ArrayList();
     setAppleCoord();
   }
   
   protected void touched(float xTouched, float yTouched){
-  
+     SnakeSegment seg = mSnake.get(0);
+     int x = seg.getXLoc();
+     int y = seg.getYLoc();
+     int deg = seg.getDegrees();
+
+     if(deg == 180 || deg == 0) {
+         if (yTouched > y * mSpriteDim)
+             mPivotPoints.add(new PivotPoint(x , y, 90));
+         else
+             mPivotPoints.add(new PivotPoint(x , y, 270));
+     }
+     else if(deg == 90 || deg == 270){
+          if (xTouched > x * mSpriteDim)
+              mPivotPoints.add(new PivotPoint(x, y, 0));
+          else
+              mPivotPoints.add(new PivotPoint(x, y, 180));
+      }
   }
     
   protected void eatApple(){
@@ -43,6 +60,16 @@ public class SnakeGame {
           seg = mSnake.get(i);
           xLoc = seg.getXLoc();
           yLoc = seg.getYLoc();
+
+          for(int y = 0; y < mPivotPoints.size(); y++) {
+              PivotPoint piv = mPivotPoints.get(y);
+              if (xLoc == piv.getXLoc() && yLoc == piv.getYLoc()) {
+                  seg.setDegrees(piv.getDegrees());
+                  if (seg.getBodyParts() == SnakeSegment.BodyParts.TAIL)
+                      mPivotPoints.remove(y);
+              }
+          }
+
           switch (seg.getDegrees()) {
               case 270:
                   seg.setYLoc(--yLoc);
@@ -58,7 +85,8 @@ public class SnakeGame {
                   break;
           }
 
-          if(mSnake.get(0).getXLoc() >= mXMax || mSnake.get(0).getYLoc() >= mYMax)
+
+          if(xLoc >= mXMax || yLoc >= mYMax || xLoc <= 0 || yLoc <= 0)
               mGameOver = true;
       }
       return mGameOver;
