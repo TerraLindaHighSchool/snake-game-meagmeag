@@ -50,10 +50,34 @@ public class SnakeGame {
   }
     
   protected void eatApple(){
-  
+      SnakeSegment seg = mSnake.get(0);
+      if(seg.getXLoc() == mAppleCoord[0] / mSpriteDim && seg.getYLoc() == mAppleCoord[1] / mSpriteDim) {
+          setAppleCoord();
+          growSnake();
+      }
   }
-    
+
+  private void growSnake(){
+        SnakeSegment seg = mSnake.get(mSnake.size() - 1);
+        mSnake.add(mSnake.size() - 2, new SnakeSegment(SnakeSegment.BodyParts.BODY, seg.getDegrees(), seg.getXLoc(), seg.getYLoc()));
+        switch(seg.getDegrees()){
+            case 0:
+                seg.setXLoc(seg.getXLoc() - 1);
+                break;
+            case 180:
+                seg.setXLoc(seg.getXLoc() + 1);
+                break;
+            case 90:
+                seg.setYLoc(seg.getYLoc() - 1);
+                break;
+            case 270:
+                seg.setYLoc(seg.getYLoc() + 1);
+                break;
+        }
+    }
+
   protected boolean play(){
+      eatApple();
       SnakeSegment seg;
       int xLoc, yLoc;
       for(int i = 0; i < mSnake.size(); i++) {
@@ -67,6 +91,7 @@ public class SnakeGame {
                   seg.setDegrees(piv.getDegrees());
                   if (seg.getBodyParts() == SnakeSegment.BodyParts.TAIL)
                       mPivotPoints.remove(y);
+                  break;
               }
           }
 
@@ -92,6 +117,7 @@ public class SnakeGame {
       return mGameOver;
   }
 
+
   /*******************************************
    * Getters
    ***************************************/
@@ -100,8 +126,11 @@ public class SnakeGame {
     }
 
   private void setAppleCoord(){
-      mAppleCoord[0] = (int) ((mXMax - 1) * Math.random() + 1) * mSpriteDim;
-      mAppleCoord[1] = (int) ((mYMax - 1) * Math.random() + 1) * mSpriteDim;
+      SnakeSegment seg = mSnake.get(0);
+      do{
+          mAppleCoord[0] = (int) ((mXMax - 1) * Math.random() + 1) * mSpriteDim;
+          mAppleCoord[1] = (int) ((mYMax - 1) * Math.random() + 1) * mSpriteDim;
+      } while(mAppleCoord[0] == seg.getXLoc() && mAppleCoord[1] == seg.getYLoc());
   }
 
 
