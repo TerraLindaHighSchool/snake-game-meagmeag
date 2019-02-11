@@ -24,7 +24,7 @@ public class GameActivity extends AppCompatActivity {
     private TextView mTextScore, mTextHighScore, mTextCountdown;
     private int mBOARD_WIDTH, mBOARD_HEIGHT;
     private SnakeGame mGame;
-    private Bitmap mHeadBitmap, mBodyBitmap, mTailBitmap, mAppleBitmap;
+    private Bitmap mHeadBitmap, mBodyBitmap, mTailBitmap, mAppleBitmap, mYellowAppleBit, mGreenAppleBit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +47,8 @@ public class GameActivity extends AppCompatActivity {
         mBodyBitmap = BitmapFactory.decodeResource(mImageView.getResources(), R.drawable.body);
         mTailBitmap = BitmapFactory.decodeResource(mImageView.getResources(), R.drawable.tail);
         mAppleBitmap = BitmapFactory.decodeResource(mImageView.getResources(), R.drawable.apple);
+        mYellowAppleBit = BitmapFactory.decodeResource(mImageView.getResources(), R.drawable.appleyellow);
+        mGreenAppleBit = BitmapFactory.decodeResource(mImageView.getResources(), R.drawable.applegreen);
 
         //listen for touches
         mImageView.setOnTouchListener(new View.OnTouchListener() {
@@ -70,7 +72,15 @@ public class GameActivity extends AppCompatActivity {
                 if(localStop) {
                     mHandler.removeCallbacks(this);
                     showToast("Game Over");
-                } else updateAndDeclareScores();
+                }
+                else if(mGame.getReset())
+                    showToast("Next Level");
+                else if(mGame.getWin()) {
+                    mHandler.removeCallbacks(this);
+                    showToast("You win!");
+                }
+                else
+                    updateAndDeclareScores();
             }
         };
         if(mGame.getGameOver()) mHandler.removeCallbacks(r);
@@ -80,6 +90,8 @@ public class GameActivity extends AppCompatActivity {
     public void paintCanvas(){
         List<SnakeSegment> snake = mGame.getSnake();
         int[] appleCoord = mGame.getAppleCoord();
+        int[] yellowAppleCoord = mGame.getYellowAppleCoord();
+        int[] greenAppleCOord = mGame.getGreenAppleCoord();
         int appleLeft = appleCoord[0];
         int appleTop = appleCoord[1];
         Bitmap ourBitmap = Bitmap.createBitmap(mBOARD_WIDTH, mBOARD_HEIGHT, Bitmap.Config.ARGB_8888);
