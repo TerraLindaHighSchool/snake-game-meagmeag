@@ -5,13 +5,11 @@ import java.util.ArrayList;
 
 public class SnakeGame {
   private int mSpriteDim, mBOARD_WIDTH, mBOARD_HEIGHT, mScore,
-          mLevel, mCountdown, mMillisDelay, mXMax, mYMax;
+          mLevel, mCountdown, mMillisDelay, mXMax, mYMax, yellowAppleCount, greenAppleCount;
   private long mStartTime, mEndTime;
   int[] mAppleCoord, mYellowAppleCoord, mGreenAppleCoord;
   ArrayList<SnakeSegment> mSnake = new ArrayList();
-  boolean mGameOver = false;
-  boolean reset = false;
-  boolean win = false;
+  boolean mGameOver, reset, win, yellowAppleBoo, greenAppleBoo;
   ArrayList<PivotPoint> mPivotPoints;
   int[] snakeParams = new int[3];
   
@@ -20,7 +18,7 @@ public class SnakeGame {
     mBOARD_WIDTH = width;
     mBOARD_HEIGHT = height;
     mScore = 0;
-    mLevel = 1;
+    mLevel = 2;
     mCountdown = 5;
     mMillisDelay = 400;
     mAppleCoord = new int[2];
@@ -35,6 +33,9 @@ public class SnakeGame {
 
     mAppleCoord[0] = (beginningX + 5) * mSpriteDim;
     mAppleCoord[1] = beginningY * mSpriteDim;
+
+    mYellowAppleCoord = new int[2];
+    mGreenAppleCoord = new int[2];
 
     snakeParams[0] = beginningDirection;
     snakeParams[1] = beginningX;
@@ -65,35 +66,56 @@ public class SnakeGame {
       SnakeSegment seg = mSnake.get(0);
       if(seg.getXLoc() == mAppleCoord[0] / mSpriteDim && seg.getYLoc() == mAppleCoord[1] / mSpriteDim) {
           setAppleCoord();
+          if((!yellowAppleBoo || yellowAppleCount > 2) && mLevel > 3 && !(mLevel == 4 && mCountdown == 1)) {
+              setYellowAppleCoord();
+          }
+          if((!greenAppleBoo || greenAppleCount > 2) && mLevel > 4) {
+              setGreenAppleCoord();
+          }
           growSnake();
           mEndTime = System.currentTimeMillis();
+          mCountdown--;
+          yellowAppleCount ++;
+          greenAppleCount++;
           score("red");
 
       }
-      if(seg.getXLoc() == mYellowAppleCoord[0] / mSpriteDim && seg.getYLoc() == mYellowAppleCoord[1] / mSpriteDim) {
+
+      else if(seg.getXLoc() == mYellowAppleCoord[0] / mSpriteDim && seg.getYLoc() == mYellowAppleCoord[1] / mSpriteDim) {
+          setYellowAppleCoord();
+          setGreenAppleCoord();
+          growSnake();
+          mEndTime = System.currentTimeMillis();
+          greenAppleCount++;
+          mCountdown--;
+          score("yellow");
+      }
+
+      else if(seg.getXLoc() == mGreenAppleCoord[0] / mSpriteDim && seg.getYLoc() == mGreenAppleCoord[1] / mSpriteDim) {
+          setGreenAppleCoord();
           setYellowAppleCoord();
           growSnake();
           mEndTime = System.currentTimeMillis();
+          yellowAppleCount++;
+          mCountdown--;
           score("green");
       }
+
       reset();
   }
 
     private void score(String apple){
-      if(apple.equals("red")) {
-            int time = (int) ((mEndTime - mStartTime) / 100) * mLevel;
-            mScore += 5 * mLevel + time;
-            mCountdown--;
-        }
-        if(apple.equals("yellow")) {
-            int time = (int) ((mEndTime - mStartTime) / 100) * mLevel;
+      int time = (int) ((mEndTime - mStartTime) / 100) * mLevel;
+      switch(apple){
+          case "red":
+              mScore += 5 * mLevel + time;
+            break;
+          case "yellow":
             mScore += 10 * mLevel + time;
-            mCountdown--;
-        }
-        if(apple.equals("green")) {
-            int time = (int) ((mEndTime - mStartTime) / 100) * mLevel;
+            break;
+          case "green":
             mScore -= 5 * mLevel;
-            mCountdown--;
+            break;
         }
     }
 
@@ -101,9 +123,10 @@ public class SnakeGame {
       SnakeSegment seg;
       if(mCountdown == 0 && mLevel < 10) {
           mLevel++;
-          mScore = 0;
-          mCountdown = 5 * mLevel;
+          mCountdown = 5;
+          if(mLevel > 4)
           mMillisDelay -= 25;
+          if(mLevel > 4)
           mSpriteDim -= 5;
           mXMax = mBOARD_WIDTH / mSpriteDim;
           mYMax = mBOARD_HEIGHT / mSpriteDim;
@@ -119,10 +142,26 @@ public class SnakeGame {
           mAppleCoord[0] = (snakeParams[1] + 5) * mSpriteDim;
           mAppleCoord[1] = snakeParams[2] * mSpriteDim;
           reset = true;
-          if(mLevel > 2)
-              setYellowAppleCoord();
-          if(mLevel > 3)
-              setGreenAppleCoord();
+
+          if(mLevel == 3){
+              mYellowAppleCoord[0] = (snakeParams[1] + 7) * mSpriteDim;
+              mYellowAppleCoord[1] = snakeParams[2] * mSpriteDim;
+              yellowAppleBoo = true;
+          }
+
+          else if (mLevel == 4){
+              mGreenAppleCoord[0] = (snakeParams[1] + 7) * mSpriteDim;
+              mGreenAppleCoord[1] = snakeParams[2] * mSpriteDim;
+              greenAppleBoo = true;
+          }
+
+          else {
+              mYellowAppleCoord = new int[2];
+              mGreenAppleCoord = new int[2];
+          }
+
+          mPivotPoints = new ArrayList<>();
+
       }
       if(mLevel == 10)
           win = true;
@@ -218,7 +257,7 @@ public class SnakeGame {
       SnakeSegment seg;
       mAppleCoord[0] = (int) ((mXMax - 1) * Math.random() + 1) * mSpriteDim;
       mAppleCoord[1] = (int) ((mYMax - 1) * Math.random() + 1) * mSpriteDim;
-      for(int i = 0; i < mSnake.size() - 1; i ++){
+      for(int i = 0; i < mSnake.size(); i ++){
           seg = mSnake.get(i);
           if(mAppleCoord[0] == seg.getXLoc() && mAppleCoord[1] == seg.getYLoc()) {
               setAppleCoord();
@@ -235,13 +274,19 @@ public class SnakeGame {
         SnakeSegment seg;
         mYellowAppleCoord[0] = (int) ((mXMax - 1) * Math.random() + 1) * mSpriteDim;
         mYellowAppleCoord[1] = (int) ((mYMax - 1) * Math.random() + 1) * mSpriteDim;
-        for (int i = 0; i < mSnake.size() - 1; i++) {
+        for (int i = 0; i < mSnake.size(); i++) {
             seg = mSnake.get(i);
             if (mYellowAppleCoord[0] == seg.getXLoc() && mYellowAppleCoord[1] == seg.getYLoc()) {
                 setYellowAppleCoord();
                 break;
             }
         }
+        yellowAppleBoo = true;
+        yellowAppleCount = 0;
+    }
+    else {
+        mYellowAppleCoord = new int[2];
+        yellowAppleBoo = false;
     }
   }
 
@@ -250,20 +295,34 @@ public class SnakeGame {
   }
 
     private void setGreenAppleCoord(){
-        //1 in 2 chance to get a yellow apple
-        int chance = (int) (2 * Math.random());
+        //1 in 3 chance to get a green apple
+        int chance = (int) (3 * Math.random());
         if(chance == 0) {
             SnakeSegment seg;
             mGreenAppleCoord[0] = (int) ((mXMax - 1) * Math.random() + 1) * mSpriteDim;
             mGreenAppleCoord[1] = (int) ((mYMax - 1) * Math.random() + 1) * mSpriteDim;
-            for (int i = 0; i < mSnake.size() - 1; i++) {
+            for (int i = 0; i < mSnake.size(); i++) {
                 seg = mSnake.get(i);
                 if (mGreenAppleCoord[0] == seg.getXLoc() && mGreenAppleCoord[1] == seg.getYLoc()) {
                     setYellowAppleCoord();
                     break;
                 }
             }
+            greenAppleBoo = true;
+            greenAppleCount = 0;
         }
+        else {
+            mGreenAppleCoord = new int[2];
+            greenAppleBoo = false;
+        }
+    }
+
+    public boolean getYellowApple(){
+      return yellowAppleBoo;
+    }
+
+    public boolean getGreenApple(){
+      return greenAppleBoo;
     }
 
     public int[] getGreenAppleCoord(){

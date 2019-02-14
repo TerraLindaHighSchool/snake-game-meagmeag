@@ -68,13 +68,21 @@ public class GameActivity extends AppCompatActivity {
             public void run() {
                 boolean localStop = mGame.play();
                 paintCanvas();
+
+
                 mHandler.postDelayed(this, mGame.getMillisDelay());
                 if(localStop) {
                     mHandler.removeCallbacks(this);
                     showToast("Game Over");
                 }
-                else if(mGame.getReset())
+                else if(mGame.getReset()) {
                     showToast("Next Level");
+                    if (mGame.getLevel() == 3) {
+                        showToast("Yellow is double");
+                    } else if (mGame.getLevel() == 4) {
+                        showToast("Green is poison");
+                    }
+                }
                 else if(mGame.getWin()) {
                     mHandler.removeCallbacks(this);
                     showToast("You win!");
@@ -91,9 +99,13 @@ public class GameActivity extends AppCompatActivity {
         List<SnakeSegment> snake = mGame.getSnake();
         int[] appleCoord = mGame.getAppleCoord();
         int[] yellowAppleCoord = mGame.getYellowAppleCoord();
-        int[] greenAppleCOord = mGame.getGreenAppleCoord();
+        int[] greenAppleCoord = mGame.getGreenAppleCoord();
         int appleLeft = appleCoord[0];
         int appleTop = appleCoord[1];
+        int yellowAppleLeft = yellowAppleCoord[0];
+        int yellowAppleTop = yellowAppleCoord[1];
+        int greenAppleLeft = greenAppleCoord[0];
+        int greenAppleTop = greenAppleCoord[1];
         Bitmap ourBitmap = Bitmap.createBitmap(mBOARD_WIDTH, mBOARD_HEIGHT, Bitmap.Config.ARGB_8888);
         Canvas window = new Canvas(ourBitmap);
         Rect rectangle = null;
@@ -126,7 +138,24 @@ public class GameActivity extends AppCompatActivity {
     rectangle = new Rect(appleLeft, appleTop, appleLeft + mGame.getSpriteDim(), appleTop + mGame.getSpriteDim());
     window.drawBitmap(mAppleBitmap, null, rectangle, null);
     mImageView.setImageBitmap(ourBitmap);
+
+    if(mGame.getYellowApple()){
+            rectangle = new Rect(yellowAppleLeft, yellowAppleTop, yellowAppleLeft + mGame.getSpriteDim(), yellowAppleTop + mGame.getSpriteDim());
+            window.drawBitmap(mYellowAppleBit, null, rectangle, null);
+            mImageView.setImageBitmap(ourBitmap);
+        }
+
+        if(mGame.getGreenApple()){
+            rectangle = new Rect(greenAppleLeft, greenAppleTop, greenAppleLeft + mGame.getSpriteDim(), greenAppleTop + mGame.getSpriteDim());
+            window.drawBitmap(mGreenAppleBit, null, rectangle, null);
+            mImageView.setImageBitmap(ourBitmap);
+        }
+
     }
+
+
+
+
 
     public Bitmap rotateBitmap(Bitmap original, float degrees){
         int width = original.getWidth();
