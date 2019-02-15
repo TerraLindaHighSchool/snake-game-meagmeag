@@ -18,7 +18,7 @@ public class SnakeGame {
     mBOARD_WIDTH = width;
     mBOARD_HEIGHT = height;
     mScore = 0;
-    mLevel = 2;
+    mLevel = 1;
     mCountdown = 5;
     mMillisDelay = 400;
     mAppleCoord = new int[2];
@@ -123,7 +123,7 @@ public class SnakeGame {
       SnakeSegment seg;
       if(mCountdown == 0 && mLevel < 10) {
           mLevel++;
-          mCountdown = 5;
+          mCountdown = 5 * mLevel;
           if(mLevel > 4)
           mMillisDelay -= 25;
           if(mLevel > 4)
